@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>互動遊戲：槓桿原理是怎樣的？</title>
+    <title>互動遊戲：槓桿原理是怎樣的？(修正版)</title>
     <style>
         :root {
             --primary: #4A90E2;
@@ -74,10 +74,9 @@
             border: 2px solid #ccc;
             margin-bottom: 20px;
             overflow: hidden;
-            touch-action: none; /* Prevent scrolling on mobile while playing */
+            touch-action: none;
         }
 
-        /* Elements within the scene */
         .fulcrum {
             position: absolute;
             bottom: 30%;
@@ -104,31 +103,26 @@
 
         .beam {
             position: absolute;
-            bottom: calc(30% + 40px); /* Base height + fulcrum height */
+            bottom: calc(30% + 40px);
             left: 50%;
             width: 500px;
             height: 10px;
             background: #5D4037;
             border-radius: 5px;
-            transform-origin: center center; /* Rotate around center */
-            transition: transform 0.5s cubic-bezier(0.4, 2.5, 0.4, 0.8); /* Bouncy effect */
+            transform-origin: center center;
+            transition: transform 0.5s cubic-bezier(0.4, 2.5, 0.4, 0.8); /* 有彈性的動畫 */
             z-index: 3;
-            margin-left: -250px; /* Center the beam */
+            margin-left: -250px;
         }
 
-        /* Characters and Objects */
         .object {
             position: absolute;
-            bottom: 10px; /* On top of beam */
+            bottom: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             transition: left 0.3s;
             cursor: grab;
-        }
-
-        .object:active {
-            cursor: grabbing;
         }
 
         .dad { font-size: 60px; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.2)); }
@@ -146,10 +140,9 @@
             border: 1px solid rgba(0,0,0,0.2);
             border-radius: 2px;
         }
-        .block.red { background: #EF5350; } /* Load */
-        .block.blue { background: #42A5F5; } /* Effort */
+        .block.red { background: #EF5350; }
+        .block.blue { background: #42A5F5; }
 
-        /* Labels on the beam */
         .marker {
             position: absolute;
             top: 15px;
@@ -227,7 +220,6 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* Input Range Styling */
         input[type=range] {
             width: 80%;
             margin: 10px 0;
@@ -258,7 +250,7 @@
         <div class="controls">
             <div class="control-group">
                 <h3>👨 爸爸太重了！</h3>
-                <p>妹妹被彈飛了。請拖動下方的滑桿，移動爸爸的位置讓他和妹妹平衡。</p>
+                <p>請拖動滑桿，移動爸爸的位置讓他和妹妹平衡。</p>
                 <label>爸爸的位置：<span id="dad-pos-val">遠</span></label><br>
                 <input type="range" id="dad-slider" min="10" max="230" value="230" step="10">
             </div>
@@ -269,13 +261,6 @@
     <div id="mode-ruler" class="hidden">
         <div class="scene">
             <div class="beam" id="beam2" style="background: #FFF3E0; border: 2px solid #8D6E63;">
-                <div class="marker" style="left: 20px;">A1</div>
-                <div class="marker" style="left: 100px;">A2</div>
-                <div class="marker" style="left: 170px;">A3</div>
-                
-                <div class="marker" style="right: 20px;">B4</div>
-                <div class="marker" style="right: 100px;">B2</div>
-                
                 <div class="fulcrum" style="bottom: -40px; border-bottom-color: #7E57C2;">
                      <div class="fulcrum-label" style="color: #7E57C2;">支點</div>
                 </div>
@@ -285,7 +270,7 @@
         <div class="controls">
             <div class="control-group" style="background: #E3F2FD;">
                 <h3>🧪 實驗步驟</h3>
-                <p>1. 選擇我們施力的位置（藍色積木放哪裡？）</p>
+                <p>1. 選擇我們施力的位置（藍色積木）</p>
                 <div>
                     <input type="radio" name="effortPos" id="posA1" value="A1" checked onchange="resetRuler()"><label for="posA1" style="font-weight:bold; color:var(--primary)"> A1 (最遠)</label>
                     <input type="radio" name="effortPos" id="posA2" value="A2" onchange="resetRuler()"><label for="posA2" style="font-weight:bold; color:var(--text)"> A2 (中間)</label>
@@ -294,7 +279,7 @@
                 
                 <hr style="border:0; border-top:1px dashed #ccc; margin: 15px 0;">
                 
-                <p>2. 增加積木直到木尺平衡（翹起來）</p>
+                <p>2. 增加積木直到木尺平衡</p>
                 <div style="display:flex; justify-content: center; align-items: center; gap: 20px;">
                     <div style="text-align:center;">
                         <span style="font-size: 2rem; display:block;" id="effort-count">0</span>
@@ -320,41 +305,30 @@
     const seesawState = {
         dadWeight: 80,
         girlWeight: 30,
-        girlPos: 230, // Fixed at far right
-        dadPos: 230,  // Controlled by slider
+        girlPos: 230,
+        dadPos: 230,
         balanced: false
     };
 
     // Ruler Config
     const rulerState = {
         loadWeight: 6, // 6 blocks
-        loadPos: 'B2', // Fixed
-        effortPos: 'A1', // Selected by user
-        effortWeight: 0, // Count
-        isLifted: false
+        loadPos: 'B2',
+        effortPos: 'A1',
+        effortWeight: 0,
+        state: 'heavy' // heavy, balanced, lifted
     };
 
-    // Position mappings (distance from center in pixels)
+    // Position mappings (distance from center)
     const positions = {
-        'A1': 220, // Far left (Effort)
-        'A2': 110, // Mid left
-        'A3': 60,  // Close left
-        'B2': 110  // Mid right (Load)
-    };
-
-    // Weights required to lift load at B2 (Torque = 6 * 110 = 660)
-    // A1 (220): 660 / 220 = 3 blocks (Let's make it 3 to lift, >3 is lift)
-    // A2 (110): 660 / 110 = 6 blocks
-    // A3 (60):  660 / 60  = 11 blocks
-    const thresholds = {
-        'A1': 3,
-        'A2': 6,
-        'A3': 11
+        'A1': 220, 
+        'A2': 110,
+        'A3': 60,
+        'B2': 110
     };
 
     // --- Initialization ---
     function init() {
-        // Init Seesaw
         const dadSlider = document.getElementById('dad-slider');
         dadSlider.addEventListener('input', (e) => {
             seesawState.dadPos = parseInt(e.target.value);
@@ -370,7 +344,6 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         
         document.getElementById(`mode-${mode}`).classList.remove('hidden');
-        // Find button with specific text content is hard, just using index logic or onclick logic
         if(mode === 'seesaw') document.querySelector('.tab-btn:first-child').classList.add('active');
         else document.querySelector('.tab-btn:last-child').classList.add('active');
         
@@ -383,7 +356,6 @@
         const feedback = document.getElementById('seesaw-feedback');
         const label = document.getElementById('dad-pos-val');
 
-        // Clear beam content but keep fulcrum if it was there (we rebuild content)
         beam.innerHTML = `
             <div class="fulcrum" style="bottom: -40px;"><div class="fulcrum-label">支點</div></div>
             <div class="object" style="left: ${250 + seesawState.girlPos}px;">
@@ -396,9 +368,6 @@
             </div>
         `;
 
-        // Calculate Balance
-        // Left Torque (Dad) = 80 * dadPos
-        // Right Torque (Girl) = 30 * 230 = 6900
         const torqueL = seesawState.dadWeight * seesawState.dadPos;
         const torqueR = seesawState.girlWeight * seesawState.girlPos;
 
@@ -406,26 +375,22 @@
         let message = "";
         let color = "";
 
-        // Text update
         if(seesawState.dadPos > 150) label.innerText = "遠 (A1)";
         else if(seesawState.dadPos > 80) label.innerText = "中 (A2)";
         else label.innerText = "近 (A3)";
 
         if (Math.abs(torqueL - torqueR) < 1000) {
-            // Balanced (roughly)
             rotation = 0;
             message = "🎉 成功平衡！<br>爸爸靠近支點，縮短了「力臂」，就能和輕的妹妹平衡。";
             color = "#E8F5E9";
             feedback.style.display = 'block';
         } else if (torqueL > torqueR) {
-            // Dad heavier
-            rotation = -15; // Rotate left down
+            rotation = -15; 
             message = "❌ 還是太重！<br>爸爸（力點）離支點太遠了。試著把爸爸往<b>中間</b>拉。";
             color = "#FFEBEE";
             feedback.style.display = 'block';
         } else {
-            // Dad too light (too close)
-            rotation = 15; // Rotate right down
+            rotation = 15; 
             message = "❌ 太輕了！<br>爸爸離支點太近了，力矩不夠。";
             color = "#FFF3E0";
             feedback.style.display = 'block';
@@ -437,14 +402,14 @@
     }
 
 
-    // --- Ruler Logic ---
+    // --- Ruler Logic (Updated) ---
     function resetRuler() {
         const radios = document.getElementsByName('effortPos');
         for (let r of radios) {
             if (r.checked) rulerState.effortPos = r.value;
         }
         rulerState.effortWeight = 0;
-        rulerState.isLifted = false;
+        rulerState.state = 'heavy';
         
         document.getElementById('effort-count').innerText = 0;
         document.getElementById('ruler-result').style.display = 'none';
@@ -453,43 +418,42 @@
     }
 
     function addBlock() {
-        if(rulerState.isLifted) return; // Already done
-        
         rulerState.effortWeight++;
         document.getElementById('effort-count').innerText = rulerState.effortWeight;
-        
-        // Check Physics
-        const required = thresholds[rulerState.effortPos];
-        
-        if (rulerState.effortWeight >= required) {
-            rulerState.isLifted = true;
-            showRulerResult();
-        }
-        
         renderRuler();
     }
 
     function renderRuler() {
         const beam = document.getElementById('beam2');
         
-        // 1. Calculate Rotation
-        let rotation = 15; // Default: Right side (Load) is heavy, so tilts right (positive deg)
+        // --- Physics Calculation (Fixed) ---
+        // Load Torque (Right)
+        const loadTorque = rulerState.loadWeight * positions['B2']; // 6 * 110 = 660
         
-        if (rulerState.isLifted) {
-            rotation = -15; // Tilts left (Effort wins)
-        } else if (rulerState.effortWeight > 0) {
-             // Slight movement just for visual feedback
-             // rotation = 15 - (rulerState.effortWeight * 1);
+        // Effort Torque (Left)
+        const effortTorque = rulerState.effortWeight * positions[rulerState.effortPos];
+        
+        let rotation = 15; // Default: tilts right
+        
+        // Determine State
+        if (effortTorque === loadTorque) {
+            rotation = 0; // Balanced!
+            rulerState.state = 'balanced';
+            showRulerResult(); // Show success on balance
+        } else if (effortTorque > loadTorque) {
+            rotation = -15; // Lifted (tilts left)
+            rulerState.state = 'lifted';
+            showRulerResult();
+        } else {
+            rotation = 15; // Not enough force
+            rulerState.state = 'heavy';
+            document.getElementById('ruler-result').style.display = 'none'; // Hide result if not balanced yet
         }
 
         beam.style.transform = `rotate(${rotation}deg)`;
 
-        // 2. Build DOM for blocks
-        // Load (Right side, fixed at B2 = 110px from center)
-        // Center is 250. Right is +
+        // --- Render Visuals ---
         const loadPixel = 250 + positions['B2']; 
-        
-        // Effort (Left side, variable)
         const effortPixel = 250 - positions[rulerState.effortPos];
 
         let loadBlocksHTML = '';
@@ -498,7 +462,6 @@
         let effortBlocksHTML = '';
         for(let i=0; i<rulerState.effortWeight; i++) effortBlocksHTML += `<div class="block blue"></div>`;
 
-        // Marks HTML (static)
         const marksHTML = `
             <div class="marker" style="left: 30px;">A1</div>
             <div class="marker" style="left: 140px;">A2</div>
@@ -526,24 +489,30 @@
         const box = document.getElementById('ruler-result');
         const pos = rulerState.effortPos;
         const count = rulerState.effortWeight;
+        const state = rulerState.state;
         
+        let title = "";
         let conclusion = "";
-        let type = ""; // Easy, Normal, Hard
+        let bgColor = "#E8F5E9"; // Greenish for success
         
-        if (pos === 'A1') {
-            type = "✨ 超級省力！";
-            conclusion = "力點離支點很遠（力臂長），所以只需要很少的積木。";
-        } else if (pos === 'A2') {
-            type = "⚖️ 不省力也不費力";
-            conclusion = "距離和重點一樣，所以需要的積木數量也一樣。";
-        } else {
-            type = "💦 好費力...";
-            conclusion = "力點離支點太近了（力臂短），需要花很大的力氣！";
+        if (state === 'balanced') {
+            title = "⚖️ 達成平衡！";
+            if(pos === 'A2') {
+                 conclusion = "距離相同時，積木數量也相同（6塊）。這是不省力也不費力的狀況。";
+            } else if (pos === 'A1') {
+                 conclusion = "雖然平衡了，但如果你再加一塊就能輕鬆翹起它（省力）。";
+            } else {
+                 conclusion = "終於平衡了，但用了好多積木（費力）。";
+            }
+        } else if (state === 'lifted') {
+            title = "🚀 成功翹起重物！";
+            conclusion = "力矩已經超過重物了。";
         }
 
+        // Table Highlighting Logic
         box.innerHTML = `
-            <h3>${type}</h3>
-            <p>使用了 <b>${count}</b> 塊積木翹起了 6 塊積木。</p>
+            <h3 style="margin-top:0">${title}</h3>
+            <p>使用了 <b>${count}</b> 塊積木。</p>
             <p>${conclusion}</p>
             
             <table class="result-table">
@@ -568,7 +537,6 @@
         box.style.display = 'block';
     }
 
-    // Start
     init();
 
 </script>
